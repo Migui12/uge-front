@@ -186,7 +186,7 @@ export default function PublicLayout() {
 
           <div className="border-t border-white/30 pt-4 text-center text-[0.75rem] font-semibold text-gray-900">
             © {new Date().getFullYear()} Unidad de Gestión Educativa Satipo. Todos los derechos reservados. |
-            <Link to="./admin/AdminLogin" className="text-gray-200 ml-1 hover:text-white">Acceso Administrativo</Link>
+            <Link to="/admin/login" className="text-gray-200 ml-1 hover:text-white">Acceso Administrativo</Link>
           </div>
         </div>
       </footer>
