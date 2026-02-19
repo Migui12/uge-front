@@ -176,7 +176,7 @@ export default function PublicLayout() {
             <div>
               <h4 className="text-red-900 mb-3 font-semibold">CONTACTO</h4>
               <div className="text-[0.8rem] leading-loose">
-                <div className="flex items-center gap-2"><FaMapMarkerAlt className="w-4 h-4" /> Jr. Educación N° 123, Lima</div>
+                <div className="flex items-center gap-2"><FaMapMarkerAlt className="w-4 h-4" /> Santa Leonor N° 123, Satipo</div>
                 <div className="flex items-center gap-2"><FaPhone className="w-4 h-4" /> 01 064-25238</div>
                 <div className="flex items-center gap-2"><FaEnvelope className="w-4 h-4" /> info@drej.edu.pe</div>
                 <div className="flex items-center gap-2"><FaClock className="w-4 h-4" /> Lun-Vie: 8:00am - 4:00pm</div>
