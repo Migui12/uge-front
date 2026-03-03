@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { FaEye, FaEdit, FaTimes, FaPaperclip, FaSave, FaSpinner, FaFolderOpen } from 'react-icons/fa';
 import { tramiteAdminService } from '../../services/api';
 import { ESTADO_TRAMITE_LABELS, TIPO_TRAMITE_LABELS, formatFechaCorta, getBadgeClaseTramite } from '../../utils';
+import Table from '../../components/ui/Table';
 
 export default function AdminTramites() {
   const [tramites, setTramites] = useState([]);
@@ -53,8 +54,18 @@ export default function AdminTramites() {
     }
   };
 
+  const columns = [
+    {key: "expediente", label: "Expediente"},
+    {key: "solicitante", label: "Solicitante"},
+    {key: "tipo", label: "Tipo"},
+    {key: "asunto", label: "Asunto"},
+    {key: "estado", label: "Estado"},
+    {key: "fecha", label: "Fecha"},
+    {key: "acciones", label: "Acciones"},
+  ]
+
   return (
-    <div className="animate-fadeInUp space-y-6 p-6">
+    <div className="animate-fadeInUp space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
           <h1 className="flex items-center gap-2 text-xl font-bold text-blue-900">
@@ -77,7 +88,7 @@ export default function AdminTramites() {
         />
 
         <select 
-          className="min-w-35 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+          className="w-full sm:w-auto sm:min-w-35 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
           value={filtros.estado}
           onChange={e => setFiltros(f => ({ ...f, estado: e.target.value }))}
         >
@@ -86,7 +97,7 @@ export default function AdminTramites() {
         </select>
 
         <select 
-          className="min-w-35 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+          className="w-full sm:w-auto sm:min-w-35 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
           value={filtros.tipoTramite}
           onChange={e => setFiltros(f => ({ ...f, tipoTramite: e.target.value }))}
         >
@@ -97,33 +108,24 @@ export default function AdminTramites() {
 
       <div className={`grid gap-4 ${selected ? 'lg:grid-cols-[1fr_380px]' : 'grid-cols-1'}`}>
         {/* Tabla */}
-        <div className="bg-white rounded-xl shadow-sm p-6 overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="border-b border-b-gray-200">
-              <tr>
-                {['Expediente', 'Solicitante', 'Tipo', 'Asunto', 'Estado', 'Fecha', 'Acciones'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={7} className="text-center py-12 text-slate-500">Cargando...</td></tr>
-              ) : tramites.length === 0 ? (
-                <tr><td colSpan={7} className="text-center py-12 text-slate-500">No se encontraron trámites</td></tr>
-              ) : tramites.map(t => (
-                <tr 
-                  key={t.id} 
-                  className={`border-b border-b-gray-200 hover:bg-slate-50 ${selected?.id === t.id ? 'bg-blue-50' : ''}`}
-                >
-                  <td className="px-4 py-3 font-mono font-semibold text-blue-900 text-xs">
-                   {t.numeroExpediente}
-                  </td>
-
-                  <td className="px-4 py-3">
+        <Table 
+          columns={columns}
+          data={tramites}
+          loading={loading}
+          paginacion={pagination}
+          onPageChange={(p) => fetch(p)}
+          emptyMessage='No se encontraron trámites'
+          renderRow={(t) => (
+            <tr 
+              key={t.id} 
+              className={`hover:bg-slate-50 ${
+                selected?.id === t.id ? "bg-blue-50" : ""
+              }`} 
+            >
+              <td className="px-4 py-3 font-mono font-semibold text-blue-900 text-xs">
+                {t.numeroExpediente}
+              </td>
+              <td className="px-4 py-3">
                     <div className="font-medium text-slate-800">
                       {t.nombre} {t.apellido}
                     </div>
@@ -168,28 +170,9 @@ export default function AdminTramites() {
                       </button>
                     </div>
                   </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {pagination.totalPaginas > 1 && (
-            <div className="flex justify-center gap-2 p-4">
-              {Array.from({ length: pagination.totalPaginas }, (_, i) => i + 1).map(p => (
-                <button 
-                  key={p} 
-                  onClick={() => fetch(p)} 
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition
-                    ${p === pagination.pagina
-                      ? 'bg-blue-900 text-white'
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-600'}`}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
+            </tr>
           )}
-        </div>
+        />
 
         {/* Panel detalle */}
         {selected && (
@@ -264,13 +247,17 @@ export default function AdminTramites() {
           <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-lg">
             <h3 className="text-lg font-semibold text-blue-900 mb-4">Actualizar Estado del Trámite</h3>
 
-            <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: '#64748b', marginBottom: '1rem' }}>
+            <div className='text-xs font-semibold text-gray-600 mb-2'>
               {modalEstado.numeroExpediente} — {modalEstado.nombre} {modalEstado.apellido}
             </div>
 
             <div style={{ marginBottom: '1rem' }}>
               <label className="form-label">Nuevo Estado *</label>
-              <select className="form-select" value={nuevoEstado} onChange={e => setNuevoEstado(e.target.value)}>
+              <select 
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
+                value={nuevoEstado} 
+                onChange={e => setNuevoEstado(e.target.value)}
+              >
                 {Object.entries(ESTADO_TRAMITE_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
                 ))}
@@ -279,7 +266,9 @@ export default function AdminTramites() {
 
             <div style={{ marginBottom: '1.5rem' }}>
               <label className="form-label">Observaciones</label>
-              <textarea className="form-textarea" rows={3}
+              <textarea 
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
+                rows={3}
                 placeholder="Notas internas sobre el trámite..."
                 value={observaciones}
                 onChange={e => setObservaciones(e.target.value)}

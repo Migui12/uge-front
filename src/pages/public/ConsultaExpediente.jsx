@@ -41,7 +41,7 @@ export default function ConsultaExpediente() {
       <div className="bg-white shadow rounded-xl p-6 mb-6">
         <form onSubmit={handleBuscar}>
           <label className="block text-sm text-gray-700 mb-1">Número de Expediente</label>
-          <div className="flex gap-3 mt-1">
+          <div className="flex flex-col md:flex-row gap-3 mt-1">
             <input
               className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm font-mono uppercase tracking-widest"
               value={codigo}
@@ -51,7 +51,7 @@ export default function ConsultaExpediente() {
             <button
               type="submit"
               disabled={loading}
-              className="bg-blue-800 hover:bg-blue-900 text-white px-4 py-2 rounded flex items-center gap-2 text-sm whitespace-nowrap"
+              className="bg-blue-800 hover:bg-blue-900 text-white px-4 py-2 rounded flex items-center justify-center gap-2 text-sm whitespace-nowrap"
             >
               {loading ? <FaClock /> : <><FaSearch /> Consultar</>}
             </button>

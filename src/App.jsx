@@ -11,6 +11,8 @@ import ConsultaExpediente from './pages/public/ConsultaExpediente';
 import Comunicados from './pages/public/Comunicados';
 import ComunicadoDetalle from './pages/public/ComunicadoDetalle';
 import Documentos from './pages/public/Documentos';
+import Noticias from './pages/public/Noticias';
+import NoticiaDetalle from './pages/public/NoticiaDetalle';
 
 // Páginas admin
 import AdminLogin from './pages/admin/AdminLogin';
@@ -20,6 +22,8 @@ import AdminConvocatorias from './pages/admin/AdminConvocatorias';
 import AdminTramites from './pages/admin/AdminTramites';
 import AdminDocumentos from './pages/admin/AdminDocumentos';
 import AdminUsuarios from './pages/admin/AdminUsuarios';
+import AdminNoticias from './pages/admin/AdminNoticias';
+import AdminConfiguracion from './pages/admin/AdminConfiguracion';
 
 // Layouts
 import PublicLayout from './components/common/PublicLayout';
@@ -62,6 +66,8 @@ function App() {
             <Route path="mesa-de-partes" element={<MesaDePartes />} />
             <Route path="consulta-expediente" element={<ConsultaExpediente />} />
             <Route path="documentos" element={<Documentos />} />
+            <Route path="noticias" element={<Noticias />} />
+            <Route path="noticias/:id" element={<NoticiaDetalle />} />
           </Route>
 
           {/* LOGIN ADMIN */}
@@ -82,6 +88,8 @@ function App() {
             <Route path="tramites" element={<AdminTramites />} />
             <Route path="documentos" element={<AdminDocumentos />} />
             <Route path="usuarios" element={<AdminUsuarios />} />
+            <Route path="noticias" element={<AdminNoticias />} />
+            <Route path="configuracion" element={<AdminConfiguracion />} />
           </Route>
 
           {/* 404 */}

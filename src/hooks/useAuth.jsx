@@ -1,6 +1,3 @@
-// src/hooks/useAuth.js
-// Hook para manejo de autenticación
-
 import { useState, useEffect, createContext, useContext } from 'react';
 import { authService } from '../services/api';
 

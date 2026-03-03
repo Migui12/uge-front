@@ -1,5 +1,4 @@
-// src/utils/index.js
-// Funciones utilitarias del sistema
+import { configService } from "../services/api";
 
 // Formatear fecha en español
 export const formatFecha = (fecha) => {
@@ -111,4 +110,44 @@ export const truncateText = (text, maxLength = 100) => {
   if (!text) return '';
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength) + '...';
+};
+
+let configCache = null;
+export const fetchHorario = async () => {
+  if (!configCache) {
+    const res = await configService.obtener();
+    configCache = res.data.data;
+  }
+  return configCache;
+};
+
+// Obtener la fecha actual
+export const getFechaPeru = () => {
+  return new Date(
+    new Date().toLocaleString('en-US', { timeZone: 'America/Lima' })
+  );
+};
+
+// Validar si está dentro del horario hábil (Lun-Vie 8am - 4pm)
+export const horarioHabil = async () => {
+  const config = await fetchHorario();
+  if (!config) return false;
+
+  const fecha = new Date();
+  const dia = fecha.getDay();
+  const hora = fecha.getHours();
+  const minuto = fecha.getMinutes();
+
+  const diaInicio = Number(config.dia_inicio);
+  const diaFin = Number(config.dia_fin);
+
+  const [hiHoras, hiMinutos] = config.hora_inicio.split(":").map(Number);
+  const [hfHoras, hfMinutos] = config.hora_fin.split(":").map(Number);
+
+  const esLaborable = dia >= diaInicio && dia <= diaFin;
+  const enHorario =
+    (hora > hiHoras || (hora === hiHoras && minuto >= hiMinutos)) &&
+    (hora < hfHoras || (hora === hfHoras && minuto <= hfMinutos));
+
+  return esLaborable && enHorario;
 };

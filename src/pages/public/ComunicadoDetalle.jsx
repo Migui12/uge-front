@@ -109,7 +109,7 @@ export default function ComunicadoDetalle() {
 
         {/* Archivo adjunto */}
         {com.archivoUrl && (
-          <div className="mt-10 p-6 bg-slate-50 rounded-xl border">
+          <div className="mt-10 p-6 bg-slate-50 rounded-xl border border-slate-300">
             <p className="flex items-center gap-2 font-semibold text-slate-700 mb-4">
               <FaPaperclip />
               Archivo adjunto

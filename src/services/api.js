@@ -1,9 +1,7 @@
-// src/services/api.js
-// Configuración centralizada de Axios
-
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://ugel-api.onrender.com/api';
+/* const API_URL = import.meta.env.VITE_API_URL || 'https://ugel-api.onrender.com/api'; */
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5173/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -29,13 +27,20 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+
+    if (status === 401) {
       // Token expirado o inválido - limpiar sesión
       localStorage.removeItem('ugel_token');
       localStorage.removeItem('ugel_user');
       if (window.location.pathname.startsWith('/admin')) {
         window.location.href = '/admin/login';
       }
+    }
+
+    if (status === 403) {
+      
+      alert(error.response.data.message || 'No tienes permisos para realizar esta acción');
     }
     return Promise.reject(error);
   }
@@ -51,6 +56,14 @@ export const authService = {
   getMe: () => api.get('/auth/me'),
   cambiarPassword: (data) => api.post('/auth/cambiar-password', data)
 };
+
+//CONFIGURACION
+export const configService = {
+  obtener: () => api.get('/configuracion'),
+  actualizar: (data) => api.put('/admin/configuracion/1', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+}
 
 // COMUNICADOS (público)
 export const comunicadoService = {
@@ -120,6 +133,24 @@ export const documentoAdminService = {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
   eliminar: (id) => api.delete(`/admin/documentos/${id}`)
+};
+
+// NOTICIAS (público)
+export const noticiaService = {
+  listar: (params) => api.get('/noticias', { params }),
+  obtener: (id) => api.get(`/noticias/${id}`)
+};
+
+// NOTICIAS (admin)
+export const noticiaAdminService = {
+  listar: (params) => api.get('/admin/noticias', { params }),
+  crear: (formData) => api.post('/admin/noticias', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  actualizar: (id, formData) => api.put(`/admin/noticias/${id}`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  eliminar: (id) => api.delete(`/admin/noticias/${id}`)
 };
 
 // USUARIOS (admin)

@@ -7,9 +7,12 @@ import {
   FaEdit,
   FaTrash,
   FaExclamationTriangle,
-  FaCheck,
-  FaSpinner,
 } from "react-icons/fa";
+
+import Table from '../../components/ui/Table';
+import Modal from '../../components/ui/Modal';
+import ConfirmModal from '../../components/ui/ConfirmModal';
+import { useToast } from '../../components/ui/Toaster';
 
 const emptyForm = {
   titulo: '', descripcion: '', tipo: 'DOCENTE', estado: 'PROXIMA',
@@ -28,6 +31,8 @@ export default function AdminConvocatorias() {
   const [filtros, setFiltros] = useState({ tipo: '', estado: '' });
   const [pagination, setPagination] = useState({ pagina: 1, totalPaginas: 1, total: 0 });
   const [confirmDel, setConfirmDel] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const { addToast } = useToast();
 
   const fetch = async (pagina = 1) => {
     setLoading(true);
@@ -52,15 +57,32 @@ export default function AdminConvocatorias() {
         if ((k === 'archivo' || k === 'base') && v) fd.append(k, v);
         else if (k !== 'archivo' && k !== 'base' && v !== null && v !== '') fd.append(k, String(v));
       });
-      modal === 'crear' ? await convocatoriaAdminService.crear(fd) : await convocatoriaAdminService.actualizar(modal.id, fd);
+
+      const esCrear = modal === "crear"
+
+      if(esCrear) {
+        await convocatoriaAdminService.crear(fd);
+      } else {
+        await convocatoriaAdminService.actualizar(modal.id, fd);
+      }
       setModal(null); fetch(pagination.pagina);
+
+      addToast(esCrear ? "Nueva convocatoria agregada" : "Convocatoria actualizada", "success")
     } catch (err) {
       setError(err.response?.data?.message || 'Error al guardar');
     } finally { setSaving(false); }
   };
 
   const handleDelete = async (id) => {
-    try { await convocatoriaAdminService.eliminar(id); setConfirmDel(null); fetch(pagination.pagina); } catch (e) {}
+    try {
+      setDeleting(true);
+      await convocatoriaAdminService.eliminar(id);
+      setConfirmDel(null);
+      fetch(pagination.pagina);
+      addToast("Convocatoria eliminada", "success");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const openEditar = (item) => {
@@ -74,19 +96,29 @@ export default function AdminConvocatorias() {
     setModal(item); setError('');
   };
 
+  const columns = [
+    { key: "titulo", label: "Titulo" },
+    { key: "tipo", label: "Tipo" },
+    { key: "estado", label: "Estado" },
+    { key: "plazas", label: "Plazas" },
+    { key: "inicio", label: "Inicio" },
+    { key: "cierre", label: "Cierre" },
+    { key: "acciones", label: "Acciones" },
+  ]
+
   return (
-    <div className="animate-fadeInUp space-y-6 p-6">
+    <div className="animate-fadeInUp space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
           <h1 className="flex items-center gap-2 text-xl font-bold text-blue-900">
             <FaClipboardList />
-           Convocatorias
+            Convocatorias
           </h1>
-          <p className="text-sm text-slate-500">{pagination.total} convocatoria{pagination.total !== 1 ? 's' : ''}</p>
+          <p className="text-sm text-slate-500">{pagination?.total ?? 0} convocatoria{(pagination?.total ?? 0) !== 1 ? 's' : ''}</p>
         </div>
         <button
           onClick={() => { setForm(emptyForm); setModal('crear'); setError(''); }}
-          className="flex items-center gap-2 bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition"
         >
           <FaPlus />
           Nueva Convocatoria
@@ -94,8 +126,8 @@ export default function AdminConvocatorias() {
       </div>
 
       <div className="bg-white rounded-xl shadow p-4 flex flex-wrap gap-4">
-        <select 
-          value={filtros.tipo} 
+        <select
+          value={filtros.tipo}
           onChange={e => setFiltros(f => ({ ...f, tipo: e.target.value }))}
           className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
         >
@@ -103,8 +135,8 @@ export default function AdminConvocatorias() {
           {Object.entries(TIPO_CONVOCATORIA_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
 
-        <select   
-          value={filtros.estado} 
+        <select
+          value={filtros.estado}
           onChange={e => setFiltros(f => ({ ...f, estado: e.target.value }))}
           className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
         >
@@ -113,257 +145,190 @@ export default function AdminConvocatorias() {
         </select>
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="border-b border-b-gray-200">
-            <tr>
-              {['Título', 'Tipo', 'Estado', 'Plazas', 'Inicio', 'Cierre', 'Acciones'].map(h => (
-                <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase">
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? 
-              <tr>
-                <td colSpan={7} className="text-center py-10 text-slate-500">Cargando...</td>
-              </tr>
-            : items.length === 0 ? 
-              <tr>
-                <td colSpan={7} className="text-center py-10 text-slate-500">No hay convocatorias</td>
-              </tr>
-            : items.map(item => (
-              <tr key={item.id} className="border-b border-b-gray-200 hover:bg-slate-50 transition">
-                <td className="px-4 py-3 font-semibold text-slate-800 truncate max-w-xs">
-                  {item.titulo}
-                </td>
-                <td className="px-4 py-3">{TIPO_CONVOCATORIA_LABELS[item.tipo]}</td>
-                <td className="px-4 py-3">
-                  <span className={`${getBadgeClaseConvocatoria(item.estado)} text-xs`}>{ESTADO_CONVOCATORIA_LABELS[item.estado]}</span>
-                </td>
-                <td className="px-4 py-3 text-center">{item.plazas}</td>
-                <td className="px-4 py-3 text-slate-500">{formatFechaCorta(item.fechaInicio)}</td>
-                <td className="px-4 py-3 text-slate-500">{formatFechaCorta(item.fechaFin)}</td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={() => openEditar(item)} 
-                      className="bg-blue-900 hover:bg-blue-800 text-white p-2 rounded-md">
-                        <FaEdit />
-                      </button>
-                    <button 
-                      onClick={() => setConfirmDel(item)} 
-                      className="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded-md">
-                        <FaTrash />
-                      </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Modal */}
-      {modal && (
-        <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-xl p-6 my-6">
-
-            <h3 className="flex items-center gap-2 text-lg font-bold text-blue-900 mb-6">
-              {modal === "crear" ? <FaPlus /> : <FaEdit />}
-              {modal === "crear" ? "Nueva Convocatoria" : "Editar Convocatoria"}
-            </h3>
-
-            {error && (
-              <div className="flex items-center gap-2 bg-red-100 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">
-                <FaExclamationTriangle />
-                {error}
+      <Table
+        columns={columns}
+        data={items}
+        loading={loading}
+        emptyMessage='No hay convocatorias'
+        renderRow={(item) => (
+          <tr key={item.id} className="border-b border-b-gray-200 hover:bg-slate-50 transition">
+            <td className="px-4 py-3 font-semibold text-slate-800 truncate max-w-xs">
+              {item.titulo}
+            </td>
+            <td className="px-4 py-3">{TIPO_CONVOCATORIA_LABELS[item.tipo]}</td>
+            <td className="px-4 py-3">
+              <span className={`${getBadgeClaseConvocatoria(item.estado)} text-xs`}>{ESTADO_CONVOCATORIA_LABELS[item.estado]}</span>
+            </td>
+            <td className="px-4 py-3 text-center">{item.plazas}</td>
+            <td className="px-4 py-3 text-slate-500">{formatFechaCorta(item.fechaInicio)}</td>
+            <td className="px-4 py-3 text-slate-500">{formatFechaCorta(item.fechaFin)}</td>
+            <td className="px-4 py-3">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => openEditar(item)}
+                  className="bg-blue-900 hover:bg-blue-800 text-white p-2 rounded-md">
+                  <FaEdit />
+                </button>
+                <button
+                  onClick={() => setConfirmDel(item)}
+                  className="bg-red-100 hover:bg-red-200 text-red-700 p-2 rounded-md">
+                  <FaTrash />
+                </button>
               </div>
-            )}
+            </td>
+          </tr>
+        )}
+      />
 
-            {/* Título */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Título *</label>
+      <Modal
+        open={!!modal}
+        title={modal === "crear" ? "Nueva Convocatoria" : "Editar Convocatoria"}
+        onClose={() => setModal(null)}
+        onSubmit={handleSave}
+        loading={saving}
+      >
+        {error && (
+          <div className="bg-red-100 text-red-700 p-3 rounded-md text-sm flex items-center gap-2">
+            <FaExclamationTriangle /> {error}
+          </div>
+        )}
+
+        <label className="block text-sm font-medium mb-1">Título *</label>
+        <input
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
+          placeholder='Título'
+          value={form.titulo}
+          onChange={(e) =>
+            setForm((f) => ({ ...f, titulo: e.target.value }))
+          }
+        />
+
+        <div className="grid md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Tipo *</label>
+            <select
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
+              value={form.tipo}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, tipo: e.target.value }))
+              }
+            >
+              {Object.entries(TIPO_CONVOCATORIA_LABELS).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Estado</label>
+            <select
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
+              value={form.estado}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, estado: e.target.value }))
+              }
+            >
+              {Object.entries(ESTADO_CONVOCATORIA_LABELS).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Plazas</label>
+            <input
+              type="number"
+              min="1"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
+              value={form.plazas}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, plazas: e.target.value }))
+              }
+            />
+          </div>
+        </div>
+
+        <label className="block text-sm font-medium mb-1">Descripción *</label>
+        <textarea
+          rows={4}
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
+          value={form.descripcion}
+          onChange={(e) => setForm((f) => ({ ...f, descripcion: e.target.value }))}
+        />
+
+        <label className="block text-sm font-medium mb-1">Requisitos</label>
+        <textarea
+          rows={4}
+          placeholder="Un requisito por línea..."
+          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
+          value={form.requisitos}
+          onChange={(e) => setForm((f) => ({ ...f, requisitos: e.target.value }))}
+        />
+
+        <div className="grid md:grid-cols-3 gap-4 mb-4">
+          {[
+            ["fechaInicio", "Fecha Inicio"],
+            ["fechaFin", "Fecha Cierre"],
+            ["fechaResultados", "Fecha Resultados"]
+          ].map(([field, label]) => (
+            <div key={field}>
+              <label className="block text-sm font-medium mb-1">{label}</label>
               <input
+                type="date"
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
-                value={form.titulo}
-                onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))}
+                value={form[field]}
+                onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
               />
             </div>
+          ))}
+        </div>
 
-            {/* Tipo / Estado / Plazas */}
-            <div className="grid md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Tipo *</label>
-                <select
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
-                  value={form.tipo}
-                  onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}
-                >
-                  {Object.entries(TIPO_CONVOCATORIA_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>{v}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Estado</label>
-                <select
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
-                  value={form.estado}
-                  onChange={e => setForm(f => ({ ...f, estado: e.target.value }))}
-                >
-                  {Object.entries(ESTADO_CONVOCATORIA_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>{v}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Plazas</label>
-                <input
-                  type="number"
-                  min="1"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
-                  value={form.plazas}
-                  onChange={e => setForm(f => ({ ...f, plazas: e.target.value }))}
-                />
-              </div>
+        <div className="grid md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <div className='flex items-center mb-1'>
+              <label className="block text-sm font-medium">Archivo convocatoria</label>
+              <span className="text-slate-400 font-normal ml-1">
+                (.pdf)
+              </span>
             </div>
 
-            {/* Descripción */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Descripción *</label>
-              <textarea
-                rows={4}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
-                value={form.descripcion}
-                onChange={e => setForm(f => ({ ...f, descripcion: e.target.value }))}
-              />
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={e => setForm(f => ({ ...f, archivo: e.target.files[0] || null }))}
+              className="border border-slate-300 rounded-lg block w-full text-sm file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition"
+            />
+          </div>
+
+          <div>
+            <div className='flex items-center mb-1'>
+              <label className="block text-sm font-medium">Bases del proceso</label>
+              <span className="text-slate-400 font-normal ml-1">
+                (.pdf)
+              </span>
             </div>
-
-            {/* Requisitos */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">Requisitos</label>
-              <textarea
-                rows={4}
-                placeholder="Un requisito por línea..."
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
-                value={form.requisitos}
-                onChange={e => setForm(f => ({ ...f, requisitos: e.target.value }))}
-              />
-            </div>
-
-            {/* Fechas */}
-            <div className="grid md:grid-cols-3 gap-4 mb-4">
-              {[
-                ["fechaInicio", "Fecha Inicio"],
-                ["fechaFin", "Fecha Cierre"],
-                ["fechaResultados", "Fecha Resultados"]
-              ].map(([field, label]) => (
-                <div key={field}>
-                  <label className="block text-sm font-medium mb-1">{label}</label>
-                  <input
-                    type="date"
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-900 outline-none"
-                    value={form[field]}
-                    onChange={e => setForm(f => ({ ...f, [field]: e.target.value }))}
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Archivos */}
-            <div className="grid md:grid-cols-2 gap-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium mb-1">Archivo convocatoria</label>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={e => setForm(f => ({ ...f, archivo: e.target.files[0] || null }))}
-                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 file:mr-3 file:px-3 file:py-1 file:border-0 file:bg-blue-900 file:hover:bg-red-950 file:text-white file:rounded-md file:text-xs"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">Bases del proceso</label>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={e => setForm(f => ({ ...f, base: e.target.files[0] || null }))}
-                  className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 file:mr-3 file:px-3 file:py-1 file:border-0 file:bg-blue-900 file:text-white file:rounded-md file:text-xs"
-                />
-              </div>
-            </div>
-
-            {/* Botones */}
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setModal(null)}
-                className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-sm"
-              >
-                Cancelar
-              </button>
-
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex items-center gap-2 bg-blue-900 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm"
-              >
-                {saving ? (
-                  <>
-                    <FaSpinner className="animate-spin" />
-                    Guardando...
-                  </>
-                ) : (
-                  <>
-                    <FaCheck />
-                    Guardar
-                  </>
-                )}
-              </button>
-            </div>
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={e => setForm(f => ({ ...f, base: e.target.files[0] || null }))}
+              className="border border-slate-300 rounded-lg block w-full text-sm file:mr-4 file:py-2 file:px-4 file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition"
+            />
           </div>
         </div>
-      )}
 
-      {confirmDel && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 text-center">
+      </Modal>
 
-            <div className="flex justify-center mb-4 text-red-500 text-4xl">
-              <FaExclamationTriangle />
-            </div>
-
-            <h3 className="text-lg font-semibold mb-2">
-              ¿Eliminar convocatoria?
-            </h3>
-
-            <p className="text-sm text-slate-500 mb-6">
-              "{confirmDel.titulo}"
-            </p>
-
-            <div className="flex justify-center gap-3">
-              <button
-                onClick={() => setConfirmDel(null)}
-                className="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-sm"
-              >
-                Cancelar
-              </button>
-
-              <button
-                onClick={() => handleDelete(confirmDel.id)}
-                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm"
-              >
-                <FaTrash />
-                Eliminar
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        open={!!confirmDel}
+        title="¿Eliminar convocatoria?"
+        message={`Estás a pundo de eliminar "${confirmDel?.titulo}"`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        variant='danger'
+        loading={deleting}
+        onClose={() => setConfirmDel(null)}
+        onConfirm={() => handleDelete(confirmDel.id)}
+      />
     </div>
   );
 }
