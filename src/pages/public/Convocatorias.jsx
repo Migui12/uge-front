@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { convocatoriaService } from '../../services/api';
 import { formatFechaCorta, ESTADO_CONVOCATORIA_LABELS, TIPO_CONVOCATORIA_LABELS, getBadgeClaseConvocatoria } from '../../utils';
 import { FaClipboardList, FaClock, FaUsers, FaCalendarAlt, FaFlagCheckered, FaFileDownload, FaTimes } from 'react-icons/fa';
+import { BACKEND_URL } from '../../services/api';
 
 export default function Convocatorias() {
   const [convocatorias, setConvocatorias] = useState([]);
@@ -127,7 +128,7 @@ export default function Convocatorias() {
                   </Link>
                   {conv.baseUrl && (
                     <a
-                      href={`http://localhost:5000${conv.baseUrl}`}
+                      href={`${BACKEND_URL}${conv.baseUrl}`}
                       target="_blank"
                       rel="noreferrer"
                       className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded text-sm text-center no-underline flex items-center justify-center gap-1"

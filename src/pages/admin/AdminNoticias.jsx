@@ -23,6 +23,7 @@ import Table from '../../components/ui/Table';
 import Modal from '../../components/ui/Modal';
 import ConfirmModal from '../../components/ui/ConfirmModal';
 import { useToast } from '../../components/ui/Toaster';
+import { BACKEND_URL } from '../../services/api';
 
 const CATEGORIAS = {
   INSTITUCIONAL: { label: 'Institucional', icon: FaUniversity },
@@ -132,7 +133,7 @@ export default function AdminNoticias() {
       categoria: item.categoria, estado: item.estado, destacada: item.destacada,
       etiquetas: item.etiquetas || '', imagen: null
     });
-    setPreviewImg(item.imagenUrl ? `http://localhost:5173${item.imagenUrl}` : null);
+    setPreviewImg(item.imagenUrl ? `${BACKEND_URL}${item.imagenUrl}` : null);
     setModal(item); setError('');
   };
 
@@ -207,7 +208,7 @@ export default function AdminNoticias() {
               <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center overflow-hidden">
                 {item.imagenUrl ? (
                   <img
-                    src={`http://localhost:5173${item.imagenUrl}`}
+                    src={`${BACKEND_URL}${item.imagenUrl}`}
                     className="w-full h-full object-cover"
                   />
                 ) : (

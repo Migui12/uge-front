@@ -20,7 +20,7 @@ export default function Header({ cog, loading }) {
                     <Link to="/" className="flex items-center gap-3 shrink-0">
                         <div className="w-15 h-15 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center">
                             <img
-                                src='../src/components/image/UGEL.png'
+                                src='UGEL.png'
                                 alt="UGEL Satipo"
                                 className="object-contain max-h-16"
                             />
@@ -65,7 +65,7 @@ export default function Header({ cog, loading }) {
                             className="hidden md:block"
                         >
                             <img
-                                src='../src/components/image/transparencia.jpg'
+                                src='transparencia.jpg'
                                 alt="Portal de Transparencia"
                                 className="w-24 md:w-32 rounded-2xl"
                             />
@@ -88,9 +88,9 @@ export default function Header({ cog, loading }) {
                             <Link
                                 key={link.to}
                                 to={link.to}
-                                className={`px-4 py-3 text-sm transition-all duration-200 whitespace-nowrap
+                                className={`px-4 py-3 text-sm font-bold transition-all duration-200 whitespace-nowrap
                     ${isActive(link.to)
-                                        ? 'text-green-600 font-semibold border-b-4 border-green-600'
+                                        ? 'text-green-600 border-b-4 border-green-600'
                                         : 'text-white hover:text-green-600 font-normal border-b-4 border-transparent'}
                     `}
                             >

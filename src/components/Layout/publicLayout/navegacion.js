@@ -1,9 +1,9 @@
 export const navLinks = [
-  { to: '/', label: 'Inicio' },
-  { to: '/noticias', label: 'Noticias' },
-  { to: '/comunicados', label: 'Comunicados' },
-  { to: '/convocatorias', label: 'Convocatorias' },
-  { to: '/mesa-de-partes', label: 'Mesa de Partes' },
-  { to: '/consulta-expediente', label: 'Consulta Expediente' },
-  { to: '/documentos', label: 'Documentos' }
+  { to: '/', label: 'INICIO' },
+  { to: '/noticias', label: 'NOTICIAS' },
+  { to: '/comunicados', label: 'COMUNICADOS' },
+  { to: '/convocatorias', label: 'CONVOCATORIAS' },
+  { to: '/mesa-de-partes', label: 'MESA DE PARTES' },
+  { to: '/consulta-expediente', label: 'CONSULTA EXPEDIENTE' },
+  { to: '/documentos', label: 'DOCUMENTOS' }
 ];

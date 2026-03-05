@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { noticiaService } from '../../services/api';
 import { formatFecha } from '../../utils';
+import { BACKEND_URL } from '../../services/api';
 import {
   FaUniversity,
   FaBook,
@@ -38,7 +39,7 @@ function NoticiaCard({ noticia }) {
           {noticia.imagenUrl ? (
             <>
               <img
-                src={`http://localhost:5000${noticia.imagenUrl}`}
+                src={`${BACKEND_URL}${noticia.imagenUrl}`}
                 alt={noticia.titulo}
                 className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
               />
@@ -147,7 +148,7 @@ export default function Noticias() {
       </div>
 
       {/* FILTROS */}
-      <div className="flex flex-wrap gap-3 items-center mb-8">
+      <div className="bg-white grid grid-cols-2 md:flex md:flex-wrap gap-3 p-2 shadow-sm items-center mb-8 rounded-3xl">
         <button
           onClick={() => setCategoria('')}
           className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
@@ -167,7 +168,7 @@ export default function Noticias() {
             <button
               key={k}
               onClick={() => setCategoria(active ? '' : k)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition ${
+              className={`flex items-center justify-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition ${
                 active
                   ? `${v.color} text-white shadow-md`
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -179,9 +180,10 @@ export default function Noticias() {
           );
         })}
 
-        <div className="ml-auto text-sm text-slate-400">
-          {pagination.total} noticia{pagination.total !== 1 ? 's' : ''}
-        </div>
+      </div>
+
+      <div className="text-sm text-slate-400 mb-4">
+        {pagination.total} noticia{pagination.total !== 1 ? 's' : ''}
       </div>
 
       {/* CONTENIDO */}

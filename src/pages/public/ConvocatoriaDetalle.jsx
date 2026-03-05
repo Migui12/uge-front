@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { convocatoriaService } from '../../services/api';
 import { formatFechaCorta, ESTADO_CONVOCATORIA_LABELS, TIPO_CONVOCATORIA_LABELS, getBadgeClaseConvocatoria } from '../../utils';
 import { FaUsers, FaCalendarAlt, FaFlagCheckered, FaChartBar, FaFileAlt, FaClipboardList, FaCheck, FaBriefcase, FaArrowLeft } from 'react-icons/fa';
+import { BACKEND_URL } from '../../services/api';
 
 export default function ConvocatoriaDetalle() {
   const { id } = useParams();
@@ -100,7 +101,7 @@ export default function ConvocatoriaDetalle() {
           <div className="flex flex-wrap gap-4 p-4 bg-gray-100 rounded-xl">
             {conv.archivoUrl && (
               <a
-                href={`http://localhost:5000${conv.archivoUrl}`}
+                href={`${BACKEND_URL}${conv.archivoUrl}`}
                 target="_blank"
                 rel="noreferrer"
                 className="bg-blue-800 hover:bg-blue-900 text-white px-4 py-2 rounded-[10px] inline-flex items-center gap-2 text-sm"
@@ -110,7 +111,7 @@ export default function ConvocatoriaDetalle() {
             )}
             {conv.baseUrl && (
               <a
-                href={`http://localhost:5000${conv.baseUrl}`}
+                href={`${BACKEND_URL}${conv.baseUrl}`}
                 target="_blank"
                 rel="noreferrer"
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-[10px] inline-flex items-center gap-2 text-sm"

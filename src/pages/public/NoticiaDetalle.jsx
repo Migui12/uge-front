@@ -1,7 +1,7 @@
 // src/pages/public/NoticiaDetalle.jsx
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { noticiaService } from '../../services/api';
+import { BACKEND_URL, noticiaService } from '../../services/api';
 import { formatFecha } from '../../utils';
 import {
   FaUniversity,
@@ -105,7 +105,7 @@ export default function NoticiaDetalle() {
             style={
               noticia.imagenUrl
                 ? {
-                    backgroundImage: `url(http://localhost:5000${noticia.imagenUrl})`,
+                    backgroundImage: `url(${BACKEND_URL}${noticia.imagenUrl})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                   }

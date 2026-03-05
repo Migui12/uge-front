@@ -4,6 +4,7 @@ import { FaEye, FaEdit, FaTimes, FaPaperclip, FaSave, FaSpinner, FaFolderOpen } 
 import { tramiteAdminService } from '../../services/api';
 import { ESTADO_TRAMITE_LABELS, TIPO_TRAMITE_LABELS, formatFechaCorta, getBadgeClaseTramite } from '../../utils';
 import Table from '../../components/ui/Table';
+import { BACKEND_URL } from '../../services/api';
 
 export default function AdminTramites() {
   const [tramites, setTramites] = useState([]);
@@ -214,7 +215,7 @@ export default function AdminTramites() {
             </div>
 
             {selected.archivoUrl && (
-              <a href={`http://localhost:5000${selected.archivoUrl}`} target="_blank" rel="noreferrer"
+              <a href={`${BACKEND_URL}${selected.archivoUrl}`} target="_blank" rel="noreferrer"
                 style={{ color: '#0056b8', fontSize: '0.8rem', display: 'block', marginBottom: '0.75rem' }}>
                 📎 Ver archivo adjunto
               </a>

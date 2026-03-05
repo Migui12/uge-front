@@ -14,6 +14,7 @@ import Modal from "../../components/ui/Modal";
 import ConfirmModal from "../../components/ui/ConfirmModal";
 import { useToast } from "../../components/ui/Toaster";
 import InputField from "../../components/ui/Input";
+import { BACKEND_URL } from "../../services/api";
 
 const CATEGORIAS = [
   "DIRECTIVA",
@@ -186,7 +187,7 @@ export default function AdminDocumentos() {
 
               <div className="flex gap-2 mt-4">
                 <a
-                  href={`http://localhost:5000${item.archivoUrl}`}
+                  href={`${BACKEND_URL}${item.archivoUrl}`}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-200 transition"

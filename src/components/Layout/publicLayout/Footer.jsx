@@ -21,7 +21,7 @@ export default function Footer({ cog }) {
                     {/* Logo y descripción */}
                     <div>
                         <img
-                            src='../src/components/image/UGEL.png'
+                            src='UGEL.png'
                             alt="UGEL Satipo"
                             className="w-20 bg-white p-2 rounded-2xl mb-4"
                         />

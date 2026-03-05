@@ -87,7 +87,7 @@ export default function Comunicados() {
         <div className="flex flex-col gap-4">
           {comunicados.map(com => (
             <Link key={com.id} to={`/comunicados/${com.id}`}>
-              <div className={`bg-white rounded-2xl p-4 border-l-4 ${com.destacado ? 'border-red-600' : getBorderColor(com.categoria)} hover:shadow-lg transition-shadow`}>
+              <div className={`bg-white rounded-2xl p-4 shadow-lg transition-all duration-300 hover:-translate-y-1`}>
                 <div className="flex justify-between gap-4 items-start">
                   <div className="flex-1">
                     <div className="flex gap-2 mb-2">

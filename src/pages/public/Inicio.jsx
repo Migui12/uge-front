@@ -2,20 +2,22 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { comunicadoService, convocatoriaService, noticiaService } from '../../services/api';
 import { formatFechaCorta, ESTADO_CONVOCATORIA_LABELS, getBadgeClaseConvocatoria } from '../../utils';
-import { FaFolderOpen, FaClipboardList, FaBullhorn, FaSearch, FaFileAlt, FaCalendarAlt, FaUserAlt, FaTag, FaNewspaper, FaStar,
+import {
+  FaFolderOpen, FaClipboardList, FaBullhorn, FaSearch, FaFileAlt, FaCalendarAlt, FaUserAlt, FaTag, FaNewspaper, FaStar,
   FaUniversity, FaBook, FaTheaterMasks, FaFutbol, FaHandshake, FaTrophy
- } from 'react-icons/fa';
+} from 'react-icons/fa';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { configService } from '../../services/api';
+import { BACKEND_URL } from '../../services/api';
 
 const CAT_COLORES = {
   INSTITUCIONAL: { color: '#003087', bg: '#dbeafe', icon: <FaUniversity /> },
-  ACADEMICO: { color: '#0056b8', bg: '#e0f2fe', icon: <FaBook/> },
-  CULTURAL: { color: '#7c3aed', bg: '#ede9fe', icon: <FaTheaterMasks/> },
-  DEPORTIVO: { color: '#059669', bg: '#dcfce7', icon: <FaFutbol/> },
-  SOCIAL: { color: '#d97706', bg: '#fef3c7', icon: <FaHandshake/> },
-  LOGRO: { color: '#d01c1c', bg: '#fee2e2', icon: <FaTrophy/> },
+  ACADEMICO: { color: '#0056b8', bg: '#e0f2fe', icon: <FaBook /> },
+  CULTURAL: { color: '#7c3aed', bg: '#ede9fe', icon: <FaTheaterMasks /> },
+  DEPORTIVO: { color: '#059669', bg: '#dcfce7', icon: <FaFutbol /> },
+  SOCIAL: { color: '#d97706', bg: '#fef3c7', icon: <FaHandshake /> },
+  LOGRO: { color: '#d01c1c', bg: '#fee2e2', icon: <FaTrophy /> },
 };
 
 const BG_FALLBACKS = ['#003087', '#0056b8', '#d01c1c', '#059669', '#7c3aed', '#d97706'];
@@ -54,23 +56,20 @@ export default function Inicio() {
   const destacada = noticias.find(n => n.destacada) || noticias[0];
   const secundarias = noticias.filter(n => n !== destacada).slice(0, 4);
 
-  const bannerUrl = banner?.imagen;
+  /* const bannerUrl = banner?.imagen ? `${BACKEND_URL}${banner.imagen}` : null; */
 
   return (
     <div className="animate-fadeInUp px-4 md:px-8 lg:px-16">
       {/* Hero Banner */}
       <div className="relative mb-8 rounded-xl overflow-hidden h-100 md:h-125 lg:h-137.5">
-        {bannerUrl ? (
-          <img src={bannerUrl} alt="Banner" className='w-full h-full object-cover' />
+        {banner.imagen ? (
+          <img src={`${BACKEND_URL}${banner.imagen}`} alt="Banner" className='w-full h-full object-cover' />
         ) : (
           <div
             className='w-full h-full bg-[#003087]'
           />
         )}
         <div className="absolute inset-0 bg-black/50"></div>
-
-        {/* <div className="absolute -top-12.5 -right-12.5 w-75 h-75 bg-white/5 rounded-full" />
-        <div className="absolute -bottom-20 left-[30%] w-50 h-50 bg-yellow-400/6 rounded-full" /> */}
 
         <div className="absolute inset-0 flex flex-col justify-center items-start px-6 md:px-16">
           <h1 className="text-white text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
@@ -99,23 +98,50 @@ export default function Inicio() {
       </div>
 
       {/* Accesos rápidos */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
         {[
-          { to: '/noticias', icon: <FaNewspaper className='w-6 h-6 text-blue-600' />, label: 'Noticias', color: '#003087' },
-          { to: '/comunicados', icon: <FaBullhorn className="w-6 h-6 text-blue-700" />, label: 'Comunicados', color: '#003087' },
-          { to: '/convocatorias', icon: <FaClipboardList className="w-6 h-6 text-blue-800" />, label: 'Convocatorias/CAS', color: '#0056b8' },
-          { to: '/mesa-de-partes', icon: <FaFolderOpen className="w-6 h-6 text-red-700" />, label: 'Mesa de Partes', color: '#d01c1c' },
-          { to: '/consulta-expediente', icon: <FaSearch className="w-6 h-6 text-green-600" />, label: 'Consultar Expediente', color: '#059669' },
-          { to: '/documentos', icon: <FaFileAlt className="w-6 h-6 text-[#7c3aed]" />, label: 'Documentos', color: '#7c3aed' }
+          { to: '/noticias', icon: <FaNewspaper />, label: 'Noticias', p: 'Enterate de las últimas noticias', color: '#003087' },
+          { to: '/comunicados', icon: <FaBullhorn />, label: 'Comunicados', p: 'Comunicados de la institución', color: '#003087' },
+          { to: '/convocatorias', icon: <FaClipboardList />, label: 'Convocatorias', p: 'CAS / CAP / Trabaja con nosotros', color: '#0056b8' },
+          { to: '/mesa-de-partes', icon: <FaFolderOpen />, label: 'Mesa de Partes', p: 'Realiza trámites a traves de nuestro portal', color: '#d01c1c' },
+          { to: '/consulta-expediente', icon: <FaSearch />, label: 'Consultar Expediente', p: 'Haz seguimiento de tus trámites', color: '#059669' },
+          { to: '/documentos', icon: <FaFileAlt />, label: 'Documentos', p: 'Documentos importantes', color: '#7c3aed' }
         ].map(item => (
-          <Link key={item.to} to={item.to} className="flex flex-col items-center gap-2 bg-white p-5 rounded-md border border-gray-200 shadow-sm transform transition hover:-translate-y-1 hover:shadow-md">
-            <div className="w-12 h-12 flex items-center justify-center rounded-full" style={{ background: item.color + '15' }}>
-              {item.icon}
+          <Link
+            key={item.to}
+            to={item.to}
+              className="h-50 md:h-40 group relative flex flex-col md:flex-row items-center gap-2 text-center bg-white p-6 rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:border-transparent"
+          >
+            <div
+              className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition duration-300"
+              style={{
+                background: `linear-gradient(135deg, ${item.color}15, ${item.color}08)`
+              }}
+            />
+
+            <div
+              className="relative w-16 h-16 flex items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-110"
+              style={{ backgroundColor: item.color + '15' }}
+            >
+              <div
+                className="text-2xl"
+                style={{ color: item.color }}
+              >
+                {item.icon}
+              </div>
             </div>
-            <span className="text-gray-800 text-[0.85rem] font-semibold">{item.label}</span>
+
+            {/* Label */}
+            <div className='md:text-left relative flex flex-col'>
+              <span className='md:text-xl font-bold text-gray-800'>
+                {item.label}
+              </span>
+              <span className='text-xs md:text-sm text-gray-500'>{item.p}</span>
+            </div>
           </Link>
         ))}
       </div>
+
       <section className="bg-white mb-6 p-6 rounded-3xl shadow-sm border border-slate-100">
 
         {/* Header sección */}
@@ -165,7 +191,7 @@ export default function Inicio() {
                       className="absolute inset-0 bg-center bg-cover"
                       style={{
                         backgroundImage: destacada.imagenUrl
-                          ? `url(http://localhost:5000${destacada.imagenUrl})`
+                          ? `url(${BACKEND_URL}${destacada.imagenUrl})`
                           : `linear-gradient(135deg, ${BG_FALLBACKS[destacada.id % BG_FALLBACKS.length]
                           }, ${BG_FALLBACKS[destacada.id % BG_FALLBACKS.length]
                           }aa)`
@@ -249,7 +275,7 @@ export default function Inicio() {
                           className="w-24 bg-center text-white bg-cover flex items-center justify-center text-2xl"
                           style={{
                             backgroundImage: noticia.imagenUrl
-                              ? `url(http://localhost:5000${noticia.imagenUrl})`
+                              ? `url(${BACKEND_URL}${noticia.imagenUrl})`
                               : `linear-gradient(135deg, ${BG_FALLBACKS[
                               noticia.id % BG_FALLBACKS.length
                               ]
@@ -279,7 +305,7 @@ export default function Inicio() {
                           </h4>
 
                           <span className="text-xs flex items-center gap-1 text-slate-400 mt-1">
-                            <FaCalendarAlt/> {" "}
+                            <FaCalendarAlt /> {" "}
                             {formatFechaCorta(
                               noticia.fechaPublicacion ||
                               noticia.createdAt
@@ -322,9 +348,9 @@ export default function Inicio() {
             <div className="flex flex-col gap-3">
               {comunicados.map(com => (
                 <Link key={com.id} to={`/comunicados/${com.id}`} className="text-gray-900 no-underline">
-                  <div className="bg-white rounded-2xl p-4 border-l-4 hover:shadow-lg transition-all duration-300 hover:-translate-y-1" style={{ borderColor: com.destacado ? '#d01c1c' : '#003087' }}>
+                  <div className="bg-white rounded-2xl p-4 shadow-lg transition-all duration-300 hover:-translate-y-1">
                     <div className="flex justify-between items-start gap-2">
-                      <h3 className="m-0 text-[0.9rem] font-semibold leading-[1.4] flex items-center gap-1">{com.destacado && (<FaStar className='text-yellow-500'/>)}{com.titulo}</h3>
+                      <h3 className="m-0 text-[0.9rem] font-semibold leading-[1.4] flex items-center gap-1">{com.destacado && (<FaStar className='text-yellow-500' />)}{com.titulo}</h3>
                       <span className="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full text-[0.7rem] whitespace-nowrap">{com.categoria}</span>
                     </div>
                     {com.resumen && <p className="m-0 mt-1 text-[0.8rem] text-gray-500 leading-5">{com.resumen.substring(0, 100)}...</p>}
