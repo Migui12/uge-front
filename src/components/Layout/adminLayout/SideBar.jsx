@@ -57,7 +57,7 @@ export default function SideBar({ open, setOpen }) {
                 <div className="flex items-center gap-3 p-4 border-b border-white/10 min-h-17.5">
                     <div className="flex items-center justify-center w-24 h-24 bg-white rounded-full shrink-0">
                         <img 
-                            src='../src/components/image/UGEL.png' 
+                            src='../UGEL.png' 
                             alt=" UGEL Satipo" 
                             className='object-contain w-22' 
                         />

@@ -3,6 +3,7 @@ import { FaCog, FaTimes } from "react-icons/fa";
 import InputField from "../../components/ui/Input";
 import { configService } from "../../services/api";
 import { useToast } from "../../components/ui/Toaster";
+import { BACKEND_URL } from "../../services/api";
 
 const emptyForm = {
     titulo: "",
@@ -44,7 +45,7 @@ export default function AdminConfiguracion() {
                     });
 
                     if (data.imagen) {
-                        setPreviewImg(data.imagen);
+                        setPreviewImg(`${BACKEND_URL}${data.imagen}`);
                     }
                 }
             } catch (error) {
